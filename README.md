@@ -13,6 +13,9 @@ This repository provides a complete CMake build system for AVR microcontrollers 
 - ✅ Automated dependency installation script
 - ✅ Generates HEX, BIN, and ELF files
 - ✅ Example LED blink program
+- ✅ UART communication module (optional)
+- ✅ Makefile wrapper for convenience
+- ✅ GitHub Actions CI/CD workflow
 
 ## Prerequisites
 
@@ -39,30 +42,49 @@ This script supports:
 
 ```
 avr-playground/
+├── .github/
+│   └── workflows/
+│       └── build.yml              # GitHub Actions CI/CD workflow
 ├── CMakeLists.txt                 # Main CMake configuration
+├── Makefile                       # Makefile wrapper for common tasks
 ├── cmake/
 │   └── avr-clang-toolchain.cmake  # AVR Clang toolchain file
 ├── src/
-│   └── main.c                     # Example LED blink program
+│   ├── main.c                     # Example LED blink program
+│   ├── uart.c                     # UART module implementation (optional)
+│   └── uart.h                     # UART module header (optional)
 ├── build.sh                       # Quick build script
 ├── install-dependencies.sh        # Dependency installation script
+├── validate.sh                    # Project validation script
 └── README.md                      # This file
 ```
 
 ## Building
 
-### Quick Build (Recommended)
+### Quick Build Methods
 
-Use the provided build script for easy building:
+#### Option 1: Using Make (Recommended)
+
+The project includes a Makefile for convenient building:
 
 ```bash
-./build.sh
+make              # Build the project
+make clean        # Clean build artifacts
+make rebuild      # Clean and rebuild
+make validate     # Validate project structure
+make help         # Show all available commands
 ```
 
-Options:
-- `./build.sh --clean` - Clean build directory before building
-- `./build.sh --verbose` - Show verbose build output
-- `./build.sh --help` - Show help message
+#### Option 2: Using Build Script
+
+Use the provided build script:
+
+```bash
+./build.sh                # Build
+./build.sh --clean        # Clean build directory before building
+./build.sh --verbose      # Show verbose build output
+./build.sh --help         # Show help message
+```
 
 ### Manual Build
 
@@ -99,10 +121,18 @@ This will generate:
 
 ## Flashing to Hardware
 
+### Using Make (Recommended)
+
+```bash
+make flash DEVICE=/dev/ttyUSB0
+```
+
+### Using avrdude Directly
+
 To flash the compiled firmware to an Arduino Uno (ATmega328P):
 
 ```bash
-avrdude -c arduino -p atmega328p -P /dev/ttyUSB0 -b 115200 -U flash:w:avr-playground.hex:i
+avrdude -c arduino -p atmega328p -P /dev/ttyUSB0 -b 115200 -U flash:w:build/avr-playground.hex:i
 ```
 
 **Note**: Replace `/dev/ttyUSB0` with your actual serial port:
@@ -134,6 +164,29 @@ int main(void) {
 ```
 
 ## Customization
+
+### Adding UART Support
+
+The project includes a UART communication module (`src/uart.c` and `src/uart.h`). To enable it:
+
+1. Edit `CMakeLists.txt` and uncomment the UART source file:
+   ```cmake
+   set(SOURCES
+       src/main.c
+       src/uart.c  # Uncomment this line
+   )
+   ```
+
+2. Include UART in your main.c:
+   ```c
+   #include "uart.h"
+   
+   int main(void) {
+       uart_init();
+       uart_println("Hello, AVR!");
+       // Your code here
+   }
+   ```
 
 ### Change Target MCU
 

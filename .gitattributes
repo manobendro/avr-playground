@@ -1,0 +1,25 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Source files
+*.c text
+*.h text
+*.cpp text
+*.hpp text
+
+# CMake files
+CMakeLists.txt text
+*.cmake text
+
+# Scripts
+*.sh text eol=lf
+
+# Documentation
+*.md text
+
+# Binary files
+*.hex binary
+*.elf binary
+*.bin binary
+*.o binary
+*.a binary

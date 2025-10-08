@@ -16,10 +16,17 @@ set(F_CPU 16000000UL)
 # Source files
 set(SOURCES
     src/main.c
+    # Uncomment to add UART support
+    # src/uart.c
 )
 
 # Create the executable
 add_executable(${PROJECT_NAME}.elf ${SOURCES})
+
+# Include directories
+target_include_directories(${PROJECT_NAME}.elf PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+)
 
 # Compiler flags
 target_compile_options(${PROJECT_NAME}.elf PRIVATE
