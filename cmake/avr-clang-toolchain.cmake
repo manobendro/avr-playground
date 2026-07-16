@@ -1,22 +1,22 @@
-# CMake Toolchain File for AVR ATmega328P with Clang
+# CMake Toolchain File for AVR ATmega328P with avr-gcc
 
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR avr)
 
 # Specify the cross compiler
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_C_COMPILER avr-gcc)
+set(CMAKE_CXX_COMPILER avr-g++)
 
 # AVR specific settings
 set(MCU atmega328p)
 set(F_CPU 16000000UL)
 
-# Compiler flags for AVR with Clang
-set(CMAKE_C_FLAGS_INIT "-target avr -mmcu=${MCU} -DF_CPU=${F_CPU} -Os")
-set(CMAKE_CXX_FLAGS_INIT "-target avr -mmcu=${MCU} -DF_CPU=${F_CPU} -Os")
+# Compiler flags for AVR with avr-gcc
+set(CMAKE_C_FLAGS_INIT "-mmcu=${MCU} -DF_CPU=${F_CPU} -Os")
+set(CMAKE_CXX_FLAGS_INIT "-mmcu=${MCU} -DF_CPU=${F_CPU} -Os")
 
 # Linker flags
-set(CMAKE_EXE_LINKER_FLAGS_INIT "-target avr -mmcu=${MCU}")
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-mmcu=${MCU}")
 
 # Search for programs in the build host directories
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Dependency installation script for AVR development with Clang
+# Dependency installation script for AVR development with avr-gcc
 # Supports Ubuntu/Debian and macOS
 
 set -e
@@ -44,12 +44,8 @@ if [ "$OS" == "linux" ]; then
     echo "Installing CMake and build essentials..."
     sudo apt-get install -y cmake build-essential
     
-    # Install Clang/LLVM
-    echo "Installing Clang/LLVM..."
-    sudo apt-get install -y clang llvm lld
-    
-    # Install AVR toolchain (for AVR libraries and headers)
-    echo "Installing AVR GCC toolchain (for libraries and headers)..."
+    # Install AVR toolchain
+    echo "Installing AVR GCC toolchain..."
     sudo apt-get install -y avr-libc gcc-avr binutils-avr
     
     # Install AVR utilities
@@ -75,10 +71,6 @@ elif [ "$OS" == "macos" ]; then
     echo "Installing CMake..."
     brew install cmake
     
-    # Install LLVM (which includes Clang)
-    echo "Installing LLVM/Clang..."
-    brew install llvm
-    
     # Install AVR toolchain
     echo "Installing AVR GCC toolchain..."
     brew tap osx-cross/avr
@@ -89,9 +81,6 @@ elif [ "$OS" == "macos" ]; then
     brew install avrdude
     
     echo -e "${GREEN}Dependencies installed successfully!${NC}"
-    echo ""
-    echo -e "${YELLOW}Note: You may need to add LLVM to your PATH:${NC}"
-    echo "export PATH=\"/usr/local/opt/llvm/bin:\$PATH\""
 fi
 
 echo ""
@@ -106,22 +95,22 @@ else
     echo -e "${RED}Not found${NC}"
 fi
 
-echo -n "Clang: "
-if command_exists clang; then
-    clang --version | head -n 1
+echo -n "avr-gcc: "
+if command_exists avr-gcc; then
+    avr-gcc --version | head -n 1
 else
     echo -e "${RED}Not found${NC}"
 fi
 
-echo -n "LLVM objcopy: "
-if command_exists llvm-objcopy; then
+echo -n "avr-objcopy: "
+if command_exists avr-objcopy; then
     echo -e "${GREEN}Found${NC}"
 else
     echo -e "${RED}Not found${NC}"
 fi
 
-echo -n "LLVM size: "
-if command_exists llvm-size; then
+echo -n "avr-size: "
+if command_exists avr-size; then
     echo -e "${GREEN}Found${NC}"
 else
     echo -e "${RED}Not found${NC}"
