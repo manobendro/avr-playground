@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 # Set the toolchain file before project declaration
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/avr-clang-toolchain.cmake)
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/avr-gcc-toolchain.cmake)
 
 project(avr-playground C)
 
@@ -45,17 +45,17 @@ target_link_options(${PROJECT_NAME}.elf PRIVATE
 
 # Custom commands to generate hex and other files
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
-    COMMAND llvm-objcopy -O ihex ${PROJECT_NAME}.elf ${PROJECT_NAME}.hex
+    COMMAND avr-objcopy -O ihex ${PROJECT_NAME}.elf ${PROJECT_NAME}.hex
     COMMENT "Generating HEX file: ${PROJECT_NAME}.hex"
 )
 
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
-    COMMAND llvm-objcopy -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin
+    COMMAND avr-objcopy -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin
     COMMENT "Generating BIN file: ${PROJECT_NAME}.bin"
 )
 
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
-    COMMAND llvm-size --format=avr --mcu=${MCU} ${PROJECT_NAME}.elf
+    COMMAND avr-size --format=avr --mcu=${MCU} ${PROJECT_NAME}.elf
     COMMENT "Size information:"
 )
 
