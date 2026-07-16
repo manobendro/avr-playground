@@ -23,7 +23,7 @@ echo -e "${YELLOW}Checking project structure...${NC}"
 
 required_files=(
     "CMakeLists.txt"
-    "cmake/avr-clang-toolchain.cmake"
+    "cmake/avr-gcc-toolchain.cmake"
     "src/main.c"
     "build.sh"
     "install-dependencies.sh"
