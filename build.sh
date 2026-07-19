@@ -20,6 +20,7 @@ echo ""
 # Parse command line arguments
 CLEAN=false
 VERBOSE=false
+COMPILER="gcc"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -31,13 +32,22 @@ while [[ $# -gt 0 ]]; do
             VERBOSE=true
             shift
             ;;
+        --compiler)
+            COMPILER="$2"
+            if [[ "$COMPILER" != "gcc" && "$COMPILER" != "clang" ]]; then
+                echo -e "${RED}Invalid compiler: $COMPILER (must be gcc or clang)${NC}"
+                exit 1
+            fi
+            shift 2
+            ;;
         -h|--help)
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  -c, --clean     Clean build directory before building"
-            echo "  -v, --verbose   Verbose build output"
-            echo "  -h, --help      Show this help message"
+            echo "  -c, --clean          Clean build directory before building"
+            echo "  -v, --verbose        Verbose build output"
+            echo "      --compiler NAME  Compiler to use: gcc (default) or clang"
+            echo "  -h, --help           Show this help message"
             echo ""
             exit 0
             ;;
@@ -62,13 +72,15 @@ if [ ! -d "$BUILD_DIR" ]; then
 fi
 
 # Configure with CMake
-echo -e "${YELLOW}Configuring project with CMake...${NC}"
+echo -e "${YELLOW}Configuring project with CMake (compiler: ${COMPILER})...${NC}"
 cd "$BUILD_DIR"
 
+CMAKE_ARGS="-DAVR_COMPILER=${COMPILER}"
+
 if [ "$VERBOSE" = true ]; then
-    cmake .. -DCMAKE_VERBOSE_MAKEFILE=ON
+    cmake .. "${CMAKE_ARGS}" -DCMAKE_VERBOSE_MAKEFILE=ON
 else
-    cmake ..
+    cmake .. "${CMAKE_ARGS}"
 fi
 
 # Build the project

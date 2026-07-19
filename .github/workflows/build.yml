@@ -9,7 +9,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+
+    name: Build with ${{ matrix.compiler }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -17,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake avr-libc gcc-avr binutils-avr
+        sudo apt-get install -y cmake avr-libc gcc-avr binutils-avr clang llvm
     
     - name: Validate project structure
       run: ./validate.sh
@@ -26,7 +32,7 @@ jobs:
       run: mkdir build
     
     - name: Configure CMake
-      run: cd build && cmake ..
+      run: cd build && cmake .. -DAVR_COMPILER=${{ matrix.compiler }}
     
     - name: Build project
       run: cd build && make
@@ -34,7 +40,7 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: avr-firmware
+        name: avr-firmware-${{ matrix.compiler }}
         path: |
           build/*.hex
           build/*.elf

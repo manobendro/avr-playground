@@ -1,7 +1,17 @@
 cmake_minimum_required(VERSION 3.15)
 
-# Set the toolchain file before project declaration
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/avr-gcc-toolchain.cmake)
+# Select the compiler toolchain before project declaration.
+# Users can override via:
+#   cmake -DAVR_COMPILER=clang ..          (selects avr-clang-toolchain.cmake)
+#   cmake -DCMAKE_TOOLCHAIN_FILE=... ..    (uses a custom toolchain file)
+if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+    set(AVR_COMPILER "gcc" CACHE STRING "Compiler to use: gcc or clang")
+    if(AVR_COMPILER STREQUAL "clang")
+        set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/avr-clang-toolchain.cmake)
+    else()
+        set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/avr-gcc-toolchain.cmake)
+    endif()
+endif()
 
 project(avr-playground C)
 
