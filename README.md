@@ -3,7 +3,7 @@ AVR MCU Playground - Build C projects for AVR ATmega328P using CMake with AVR-GC
 
 ## Overview
 
-This repository provides a complete CMake build system for AVR microcontrollers (specifically ATmega328P). It supports both **AVR-GCC** and **Clang/LLVM** as compilers, letting you choose at build time. It includes a simple LED blink example and automated dependency installation.
+This repository provides a complete CMake build system for AVR microcontrollers (specifically ATmega328P). It supports both **AVR-GCC** and **Clang/LLVM** as compilers — you choose at build time. GCC is the default. It includes a simple LED blink example and automated dependency installation.
 
 ## Features
 
@@ -18,26 +18,14 @@ This repository provides a complete CMake build system for AVR microcontrollers 
 - ✅ Makefile wrapper for convenience
 - ✅ GitHub Actions CI/CD workflow (builds with both GCC and Clang)
 
-## Prerequisites
+## Build Status
 
-### Required Tools
+Both compilers are verified to produce correct AVR firmware:
 
-- CMake (version 3.15 or higher)
-- AVR GCC toolchain (compiler, libraries, and headers) — required for both GCC and Clang builds (Clang uses avr-gcc for linking)
-- Clang/LLVM — optional, only needed when building with `--compiler clang`
-- avrdude (for flashing firmware)
-
-### Automated Installation
-
-Run the installation script to automatically install all dependencies:
-
-```bash
-./install-dependencies.sh
-```
-
-This script supports:
-- **Ubuntu/Debian**: Uses apt-get
-- **macOS**: Uses Homebrew
+| Compiler | Version tested | Flash usage |
+|---|---|---|
+| avr-gcc | 7.3.0 | 162 bytes |
+| clang | 18.1.3 | 168 bytes |
 
 ## Project Structure
 
@@ -45,7 +33,7 @@ This script supports:
 avr-playground/
 ├── .github/
 │   └── workflows/
-│       └── build.yml                  # GitHub Actions CI/CD workflow (GCC + Clang matrix)
+│       └── build.yml                  # CI/CD workflow — matrix build (GCC + Clang)
 ├── CMakeLists.txt                     # Main CMake configuration
 ├── Makefile                           # Makefile wrapper for common tasks
 ├── cmake/
@@ -61,96 +49,162 @@ avr-playground/
 └── README.md                          # This file
 ```
 
-## Building
+## Prerequisites
 
-### Quick Build Methods
+### Required Tools
 
-#### Option 1: Using Make (Recommended)
+| Tool | Purpose | Required for |
+|---|---|---|
+| CMake ≥ 3.15 | Build system | All builds |
+| `gcc-avr` + `binutils-avr` | AVR cross-compiler and linker | All builds (Clang uses avr-gcc for linking) |
+| `avr-libc` | AVR C standard library and headers | All builds |
+| `clang` + `llvm` | LLVM/Clang compiler | Clang builds only |
+| `avrdude` | Flash firmware to hardware | Flashing only |
 
-The project includes a Makefile for convenient building:
+### Automated Installation
 
-```bash
-make              # Build the project
-make clean        # Clean build artifacts
-make rebuild      # Clean and rebuild
-make validate     # Validate project structure
-make help         # Show all available commands
-```
-
-#### Option 2: Using Build Script
-
-Use the provided build script:
-
-```bash
-./build.sh                        # Build with GCC (default)
-./build.sh --compiler gcc         # Build with AVR-GCC explicitly
-./build.sh --compiler clang       # Build with Clang/LLVM
-./build.sh --clean                # Clean build directory before building
-./build.sh --verbose              # Show verbose build output
-./build.sh --help                 # Show help message
-```
-
-### Manual Build
-
-#### Step 1: Install Dependencies
+Run the installation script to automatically install all dependencies:
 
 ```bash
 ./install-dependencies.sh
 ```
 
-#### Step 2: Create Build Directory
+This script supports **Ubuntu/Debian** (via `apt-get`) and **macOS** (via Homebrew).
+
+#### Manual installation — Ubuntu/Debian
 
 ```bash
-mkdir build
-cd build
+sudo apt-get update
+sudo apt-get install -y cmake gcc-avr binutils-avr avr-libc clang llvm avrdude
+```
+
+#### Manual installation — macOS
+
+```bash
+brew tap osx-cross/avr
+brew install cmake avr-gcc avr-binutils avr-libc llvm avrdude
+```
+
+## Building
+
+### Quick Build — using the build script
+
+```bash
+# Build with AVR-GCC (default)
+./build.sh
+
+# Build with Clang/LLVM
+./build.sh --compiler clang
+
+# Clean then build
+./build.sh --clean
+
+# Verbose output
+./build.sh --verbose
+
+# All options combined
+./build.sh --compiler clang --clean --verbose
+
+# Show help
+./build.sh --help
+```
+
+### Quick Build — using Make
+
+```bash
+make              # Build with GCC (default)
+make clean        # Remove build artifacts
+make rebuild      # Clean then build
+make validate     # Validate project structure
+make help         # Show all available targets
+```
+
+### Manual Build — step by step
+
+#### Step 1: Install dependencies
+
+```bash
+./install-dependencies.sh
+```
+
+#### Step 2: Create a build directory
+
+```bash
+mkdir build && cd build
 ```
 
 #### Step 3: Configure with CMake
 
 ```bash
-# Build with GCC (default)
+# AVR-GCC (default — both of these are equivalent)
 cmake ..
+cmake .. -DAVR_COMPILER=gcc
 
-# Build with Clang
+# Clang/LLVM
 cmake .. -DAVR_COMPILER=clang
 ```
 
-#### Step 4: Build the Project
+#### Step 4: Compile
 
 ```bash
 make
 ```
 
-This will generate:
-- `avr-playground.elf` - Executable and linkable format file
-- `avr-playground.hex` - Intel HEX format (for flashing)
-- `avr-playground.bin` - Binary format
-- `avr-playground.map` - Memory map file
+#### Step 5: Verify output
+
+After a successful build the `build/` directory contains:
+
+```
+avr-playground.elf   # ELF executable (used by avrdude and debuggers)
+avr-playground.hex   # Intel HEX format — flash this to the device
+avr-playground.bin   # Raw binary
+avr-playground.map   # Linker memory map
+```
+
+`avr-size` prints a memory summary automatically after each build, for example:
+
+```
+AVR Memory Usage
+----------------
+Device: atmega328p
+
+Program:     162 bytes (0.5% Full)   ← GCC
+Program:     168 bytes (0.5% Full)   ← Clang
+
+Data:          0 bytes (0.0% Full)
+```
+
+### Compiler selection reference
+
+| Method | GCC | Clang |
+|---|---|---|
+| `cmake` flag | `cmake .. -DAVR_COMPILER=gcc` | `cmake .. -DAVR_COMPILER=clang` |
+| `build.sh` flag | `./build.sh --compiler gcc` | `./build.sh --compiler clang` |
+| Custom toolchain | `cmake .. -DCMAKE_TOOLCHAIN_FILE=cmake/avr-gcc-toolchain.cmake` | `cmake .. -DCMAKE_TOOLCHAIN_FILE=cmake/avr-clang-toolchain.cmake` |
 
 ## Flashing to Hardware
 
-### Using Make (Recommended)
+### Using Make
 
 ```bash
 make flash DEVICE=/dev/ttyUSB0
 ```
 
-### Using avrdude Directly
-
-To flash the compiled firmware to an Arduino Uno (ATmega328P):
+### Using avrdude directly
 
 ```bash
-avrdude -c arduino -p atmega328p -P /dev/ttyUSB0 -b 115200 -U flash:w:build/avr-playground.hex:i
+avrdude -c arduino -p atmega328p -P /dev/ttyUSB0 -b 115200 \
+    -U flash:w:build/avr-playground.hex:i
 ```
 
-**Note**: Replace `/dev/ttyUSB0` with your actual serial port:
-- Linux: `/dev/ttyUSB0`, `/dev/ttyACM0`, etc.
-- macOS: `/dev/tty.usbserial-*` or `/dev/tty.usbmodem-*`
-- Windows: `COM3`, `COM4`, etc.
+Replace `/dev/ttyUSB0` with your actual serial port:
+- **Linux**: `/dev/ttyUSB0`, `/dev/ttyACM0`, …
+- **macOS**: `/dev/tty.usbserial-*`, `/dev/tty.usbmodem-*`
+- **Windows**: `COM3`, `COM4`, …
 
 ## Example Program
 
-The included example (`src/main.c`) blinks an LED connected to pin PB5 (Arduino Uno pin 13):
+The included example (`src/main.c`) blinks an LED on PB5 (Arduino Uno pin 13):
 
 ```c
 #include <avr/io.h>
@@ -160,13 +214,13 @@ The included example (`src/main.c`) blinks an LED connected to pin PB5 (Arduino 
 #define BLINK_DELAY_MS 1000
 
 int main(void) {
-    DDRB |= (1 << LED_PIN);  // Set PB5 as output
-    
+    DDRB |= (1 << LED_PIN);   // Set PB5 as output
+
     while (1) {
         PORTB ^= (1 << LED_PIN);  // Toggle LED
         _delay_ms(BLINK_DELAY_MS);
     }
-    
+
     return 0;
 }
 ```
@@ -175,44 +229,48 @@ int main(void) {
 
 ### Adding UART Support
 
-The project includes a UART communication module (`src/uart.c` and `src/uart.h`). To enable it:
+1. Edit `CMakeLists.txt` and uncomment the UART source:
 
-1. Edit `CMakeLists.txt` and uncomment the UART source file:
    ```cmake
    set(SOURCES
        src/main.c
-       src/uart.c  # Uncomment this line
+       src/uart.c  # uncomment
    )
    ```
 
-2. Include UART in your main.c:
+2. Include UART in `main.c`:
+
    ```c
    #include "uart.h"
-   
+
    int main(void) {
        uart_init();
        uart_println("Hello, AVR!");
-       // Your code here
    }
    ```
 
-### Change Target MCU
+### Changing the Target MCU
 
-Edit both `cmake/avr-gcc-toolchain.cmake` and `cmake/avr-clang-toolchain.cmake`, plus `CMakeLists.txt`:
+Edit both toolchain files and `CMakeLists.txt`:
 
 ```cmake
 set(MCU atmega2560)  # or atmega168, atmega32u4, etc.
 ```
 
-### Change CPU Frequency
+Files to update:
+- `cmake/avr-gcc-toolchain.cmake`
+- `cmake/avr-clang-toolchain.cmake`
+- `CMakeLists.txt` (the `set(MCU ...)` line)
 
-Edit both toolchain files (`cmake/avr-gcc-toolchain.cmake` and `cmake/avr-clang-toolchain.cmake`):
+### Changing CPU Frequency
+
+Edit both toolchain files:
 
 ```cmake
 set(F_CPU 8000000UL)  # 8 MHz
 ```
 
-### Add More Source Files
+### Adding Source Files
 
 Edit `CMakeLists.txt`:
 
@@ -226,28 +284,38 @@ set(SOURCES
 
 ## Troubleshooting
 
-### Clang doesn't support AVR target
+### AVR headers not found
 
-Some versions of Clang may not have AVR support compiled in. Ensure you have LLVM/Clang with AVR backend:
+Ensure `avr-libc` is installed. Headers should be at `/usr/avr/include` (Linux) or `/usr/local/avr/include` (macOS):
+
+```bash
+ls /usr/avr/include/avr/io.h
+```
+
+If missing, install with `sudo apt-get install avr-libc` or `brew install avr-libc`.
+
+### Clang AVR backend not available
+
+Verify your Clang has the AVR backend compiled in:
 
 ```bash
 clang --version
-llc --version | grep avr
+llc --version | grep avr   # should print "avr    - Atmel AVR Microcontroller"
 ```
 
-### AVR headers not found
+On Ubuntu/Debian `clang` 7+ and all modern distributions include it by default. On macOS install via `brew install llvm`.
 
-Ensure `avr-libc` is installed. The headers should be in `/usr/avr/include` or `/usr/local/avr/include`.
+### `__builtin_avr_delay_cycles` undefined reference
+
+This can happen with older Clang versions. The toolchain file already adds `-D__DELAY_BACKWARD_COMPATIBLE__` to work around it. If you still see this, ensure you are using `cmake/avr-clang-toolchain.cmake` and not a custom toolchain.
 
 ### Permission denied when flashing
 
-Add your user to the dialout group (Linux):
+Add your user to the `dialout` group (Linux), then log out and back in:
 
 ```bash
 sudo usermod -a -G dialout $USER
 ```
-
-Log out and log back in for changes to take effect.
 
 ## License
 
@@ -256,3 +324,4 @@ This project is open source and available for educational and commercial use.
 ## Contributing
 
 Contributions are welcome! Please feel free to submit pull requests or open issues.
+
