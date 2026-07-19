@@ -1,14 +1,14 @@
 # avr-playground
-AVR MCU Playground - Build C projects for AVR ATmega328P using CMake and Clang
+AVR MCU Playground - Build C projects for AVR ATmega328P using CMake and AVR-GCC
 
 ## Overview
 
-This repository provides a complete CMake build system for AVR microcontrollers (specifically ATmega328P) using LLVM/Clang as the compiler. It includes a simple LED blink example and automated dependency installation.
+This repository provides a complete CMake build system for AVR microcontrollers (specifically ATmega328P) using AVR-GCC as the compiler. It includes a simple LED blink example and automated dependency installation.
 
 ## Features
 
 - ✅ CMake-based build system
-- ✅ LLVM/Clang compiler support for AVR
+- ✅ AVR-GCC compiler support for AVR
 - ✅ AVR ATmega328P target (Arduino Uno compatible)
 - ✅ Automated dependency installation script
 - ✅ Generates HEX, BIN, and ELF files
@@ -22,8 +22,7 @@ This repository provides a complete CMake build system for AVR microcontrollers 
 ### Required Tools
 
 - CMake (version 3.15 or higher)
-- Clang/LLVM (for AVR target support)
-- AVR GCC toolchain (for AVR libraries and headers)
+- AVR GCC toolchain (compiler, libraries, and headers)
 - avrdude (for flashing firmware)
 
 ### Automated Installation
@@ -48,7 +47,7 @@ avr-playground/
 ├── CMakeLists.txt                 # Main CMake configuration
 ├── Makefile                       # Makefile wrapper for common tasks
 ├── cmake/
-│   └── avr-clang-toolchain.cmake  # AVR Clang toolchain file
+│   └── avr-gcc-toolchain.cmake    # AVR-GCC toolchain file
 ├── src/
 │   ├── main.c                     # Example LED blink program
 │   ├── uart.c                     # UART module implementation (optional)
@@ -190,7 +189,7 @@ The project includes a UART communication module (`src/uart.c` and `src/uart.h`)
 
 ### Change Target MCU
 
-Edit `cmake/avr-clang-toolchain.cmake` and `CMakeLists.txt`:
+Edit `cmake/avr-gcc-toolchain.cmake` and `CMakeLists.txt`:
 
 ```cmake
 set(MCU atmega2560)  # or atmega168, atmega32u4, etc.
@@ -198,7 +197,7 @@ set(MCU atmega2560)  # or atmega168, atmega32u4, etc.
 
 ### Change CPU Frequency
 
-Edit `cmake/avr-clang-toolchain.cmake`:
+Edit `cmake/avr-gcc-toolchain.cmake`:
 
 ```cmake
 set(F_CPU 8000000UL)  # 8 MHz
