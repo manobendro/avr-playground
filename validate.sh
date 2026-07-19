@@ -22,6 +22,7 @@ TOOLCHAIN_FILE=$(sed -nE 's/.*CMAKE_TOOLCHAIN_FILE[[:space:]]+\$\{CMAKE_SOURCE_D
 
 if [ -z "$TOOLCHAIN_FILE" ]; then
     TOOLCHAIN_FILE="cmake/avr-gcc-toolchain.cmake"
+    echo -e "${YELLOW}⚠ Could not detect toolchain file from CMakeLists.txt, falling back to $TOOLCHAIN_FILE${NC}"
 fi
 
 # Check required files exist
@@ -99,27 +100,29 @@ echo ""
 echo -e "${YELLOW}Checking toolchain file...${NC}"
 
 if [ -f "$TOOLCHAIN_FILE" ]; then
+    TOOLCHAIN_FILE_EXISTS=true
     echo -e "  ✓ $TOOLCHAIN_FILE exists"
 else
+    TOOLCHAIN_FILE_EXISTS=false
     echo -e "  ${RED}✗ $TOOLCHAIN_FILE missing${NC}"
     ((ERRORS++))
 fi
 
-if [ -f "$TOOLCHAIN_FILE" ] && grep -q "CMAKE_SYSTEM_NAME" "$TOOLCHAIN_FILE"; then
+if [ "$TOOLCHAIN_FILE_EXISTS" = true ] && grep -q "CMAKE_SYSTEM_NAME" "$TOOLCHAIN_FILE"; then
     echo -e "  ✓ CMAKE_SYSTEM_NAME set"
 else
     echo -e "  ${RED}✗ CMAKE_SYSTEM_NAME not set${NC}"
     ((ERRORS++))
 fi
 
-if [ -f "$TOOLCHAIN_FILE" ] && grep -q "CMAKE_C_COMPILER" "$TOOLCHAIN_FILE"; then
+if [ "$TOOLCHAIN_FILE_EXISTS" = true ] && grep -q "CMAKE_C_COMPILER" "$TOOLCHAIN_FILE"; then
     echo -e "  ✓ CMAKE_C_COMPILER set"
 else
     echo -e "  ${RED}✗ CMAKE_C_COMPILER not set${NC}"
     ((ERRORS++))
 fi
 
-if [ -f "$TOOLCHAIN_FILE" ] && grep -q "atmega328p" "$TOOLCHAIN_FILE"; then
+if [ "$TOOLCHAIN_FILE_EXISTS" = true ] && grep -q "atmega328p" "$TOOLCHAIN_FILE"; then
     echo -e "  ✓ MCU target (atmega328p) specified"
 else
     echo -e "  ${YELLOW}⚠ MCU target not found${NC}"
