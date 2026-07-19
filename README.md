@@ -1,28 +1,30 @@
 # avr-playground
-AVR MCU Playground - Build C projects for AVR ATmega328P using CMake and AVR-GCC
+AVR MCU Playground - Build C projects for AVR ATmega328P using CMake with AVR-GCC or Clang
 
 ## Overview
 
-This repository provides a complete CMake build system for AVR microcontrollers (specifically ATmega328P) using AVR-GCC as the compiler. It includes a simple LED blink example and automated dependency installation.
+This repository provides a complete CMake build system for AVR microcontrollers (specifically ATmega328P). It supports both **AVR-GCC** and **Clang/LLVM** as compilers, letting you choose at build time. It includes a simple LED blink example and automated dependency installation.
 
 ## Features
 
 - ✅ CMake-based build system
-- ✅ AVR-GCC compiler support for AVR
+- ✅ AVR-GCC compiler support
+- ✅ Clang/LLVM compiler support (user-selectable)
 - ✅ AVR ATmega328P target (Arduino Uno compatible)
 - ✅ Automated dependency installation script
 - ✅ Generates HEX, BIN, and ELF files
 - ✅ Example LED blink program
 - ✅ UART communication module (optional)
 - ✅ Makefile wrapper for convenience
-- ✅ GitHub Actions CI/CD workflow
+- ✅ GitHub Actions CI/CD workflow (builds with both GCC and Clang)
 
 ## Prerequisites
 
 ### Required Tools
 
 - CMake (version 3.15 or higher)
-- AVR GCC toolchain (compiler, libraries, and headers)
+- AVR GCC toolchain (compiler, libraries, and headers) — required for both GCC and Clang builds (Clang uses avr-gcc for linking)
+- Clang/LLVM — optional, only needed when building with `--compiler clang`
 - avrdude (for flashing firmware)
 
 ### Automated Installation
@@ -43,19 +45,20 @@ This script supports:
 avr-playground/
 ├── .github/
 │   └── workflows/
-│       └── build.yml              # GitHub Actions CI/CD workflow
-├── CMakeLists.txt                 # Main CMake configuration
-├── Makefile                       # Makefile wrapper for common tasks
+│       └── build.yml                  # GitHub Actions CI/CD workflow (GCC + Clang matrix)
+├── CMakeLists.txt                     # Main CMake configuration
+├── Makefile                           # Makefile wrapper for common tasks
 ├── cmake/
-│   └── avr-gcc-toolchain.cmake    # AVR-GCC toolchain file
+│   ├── avr-gcc-toolchain.cmake        # AVR-GCC toolchain file
+│   └── avr-clang-toolchain.cmake      # Clang/LLVM toolchain file
 ├── src/
-│   ├── main.c                     # Example LED blink program
-│   ├── uart.c                     # UART module implementation (optional)
-│   └── uart.h                     # UART module header (optional)
-├── build.sh                       # Quick build script
-├── install-dependencies.sh        # Dependency installation script
-├── validate.sh                    # Project validation script
-└── README.md                      # This file
+│   ├── main.c                         # Example LED blink program
+│   ├── uart.c                         # UART module implementation (optional)
+│   └── uart.h                         # UART module header (optional)
+├── build.sh                           # Quick build script
+├── install-dependencies.sh            # Dependency installation script
+├── validate.sh                        # Project validation script
+└── README.md                          # This file
 ```
 
 ## Building
@@ -79,10 +82,12 @@ make help         # Show all available commands
 Use the provided build script:
 
 ```bash
-./build.sh                # Build
-./build.sh --clean        # Clean build directory before building
-./build.sh --verbose      # Show verbose build output
-./build.sh --help         # Show help message
+./build.sh                        # Build with GCC (default)
+./build.sh --compiler gcc         # Build with AVR-GCC explicitly
+./build.sh --compiler clang       # Build with Clang/LLVM
+./build.sh --clean                # Clean build directory before building
+./build.sh --verbose              # Show verbose build output
+./build.sh --help                 # Show help message
 ```
 
 ### Manual Build
@@ -103,7 +108,11 @@ cd build
 #### Step 3: Configure with CMake
 
 ```bash
+# Build with GCC (default)
 cmake ..
+
+# Build with Clang
+cmake .. -DAVR_COMPILER=clang
 ```
 
 #### Step 4: Build the Project
@@ -189,7 +198,7 @@ The project includes a UART communication module (`src/uart.c` and `src/uart.h`)
 
 ### Change Target MCU
 
-Edit `cmake/avr-gcc-toolchain.cmake` and `CMakeLists.txt`:
+Edit both `cmake/avr-gcc-toolchain.cmake` and `cmake/avr-clang-toolchain.cmake`, plus `CMakeLists.txt`:
 
 ```cmake
 set(MCU atmega2560)  # or atmega168, atmega32u4, etc.
@@ -197,7 +206,7 @@ set(MCU atmega2560)  # or atmega168, atmega32u4, etc.
 
 ### Change CPU Frequency
 
-Edit `cmake/avr-gcc-toolchain.cmake`:
+Edit both toolchain files (`cmake/avr-gcc-toolchain.cmake` and `cmake/avr-clang-toolchain.cmake`):
 
 ```cmake
 set(F_CPU 8000000UL)  # 8 MHz

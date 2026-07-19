@@ -48,6 +48,10 @@ if [ "$OS" == "linux" ]; then
     echo "Installing AVR GCC toolchain..."
     sudo apt-get install -y avr-libc gcc-avr binutils-avr
     
+    # Install Clang/LLVM with AVR backend
+    echo "Installing Clang/LLVM..."
+    sudo apt-get install -y clang llvm
+    
     # Install AVR utilities
     echo "Installing AVR utilities..."
     sudo apt-get install -y avrdude
@@ -76,6 +80,10 @@ elif [ "$OS" == "macos" ]; then
     brew tap osx-cross/avr
     brew install avr-gcc avr-binutils avr-libc
     
+    # Install Clang/LLVM (includes AVR backend)
+    echo "Installing Clang/LLVM..."
+    brew install llvm
+    
     # Install AVR utilities
     echo "Installing AVR utilities..."
     brew install avrdude
@@ -98,6 +106,13 @@ fi
 echo -n "avr-gcc: "
 if command_exists avr-gcc; then
     avr-gcc --version | head -n 1
+else
+    echo -e "${RED}Not found${NC}"
+fi
+
+echo -n "clang: "
+if command_exists clang; then
+    clang --version | head -n 1
 else
     echo -e "${RED}Not found${NC}"
 fi
