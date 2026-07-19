@@ -78,9 +78,9 @@ cd "$BUILD_DIR"
 CMAKE_ARGS="-DAVR_COMPILER=${COMPILER}"
 
 if [ "$VERBOSE" = true ]; then
-    cmake .. $CMAKE_ARGS -DCMAKE_VERBOSE_MAKEFILE=ON
+    cmake .. "${CMAKE_ARGS}" -DCMAKE_VERBOSE_MAKEFILE=ON
 else
-    cmake .. $CMAKE_ARGS
+    cmake .. "${CMAKE_ARGS}"
 fi
 
 # Build the project

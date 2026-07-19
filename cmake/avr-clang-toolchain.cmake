@@ -22,7 +22,9 @@ set(CMAKE_C_FLAGS_INIT "--target=avr -mmcu=${MCU} -DF_CPU=${F_CPU} -Os -D__DELAY
 set(CMAKE_CXX_FLAGS_INIT "--target=avr -mmcu=${MCU} -DF_CPU=${F_CPU} -Os -D__DELAY_BACKWARD_COMPATIBLE__")
 
 # Use avr-gcc as the linker driver so it can locate AVR crt files and avr-libc.
-# Omit <FLAGS> (which contains Clang-specific --target=avr) from the linker invocation.
+# <FLAGS> is intentionally omitted here: it contains Clang-specific flags like
+# --target=avr that avr-gcc does not recognise and would cause a linker error.
+# The required -mmcu flag is supplied via CMAKE_EXE_LINKER_FLAGS_INIT below.
 set(CMAKE_C_LINK_EXECUTABLE
     "avr-gcc <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
 set(CMAKE_CXX_LINK_EXECUTABLE
